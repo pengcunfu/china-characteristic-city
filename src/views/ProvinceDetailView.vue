@@ -44,7 +44,9 @@ const OVERVIEW_ICONS = {
         </div>
         <div class="hero-meta">
           <span class="hero-tag">{{ REGION_EMOJI[province.region] || '📍' }} {{ province.region }}</span>
-          <span class="hero-tag">{{ province.cities.length }} 座城市</span>
+          <span class="hero-tag">
+            {{ province.cities.length ? `${province.cities.length} 座城市` : '区域概览' }}
+          </span>
         </div>
         <p v-if="province.intro" class="hero-desc">{{ province.intro }}</p>
       </div>
@@ -80,7 +82,13 @@ const OVERVIEW_ICONS = {
           <div>
             <h2 class="section-title">城市印象</h2>
             <p class="section-sub">
-              {{ cities.length ? `共 ${cities.length} 座城市` : '该省份的城市内容整理中，敬请期待' }}
+              {{
+                cities.length
+                  ? `共 ${cities.length} 座城市`
+                  : Object.keys(province.overview).length || province.districts.length
+                    ? '该省份以全市概览与主要区域呈现'
+                    : '该省份的城市内容整理中，敬请期待'
+              }}
             </p>
           </div>
         </div>
@@ -99,6 +107,9 @@ const OVERVIEW_ICONS = {
         <div v-else class="empty-state">
           <div class="big">🏯</div>
           <p v-if="province.cities.length">没有找到匹配的城市，换个关键词试试？</p>
+          <p v-else-if="Object.keys(province.overview).length || province.districts.length">
+            这个省份以全市概览与主要区域呈现。
+          </p>
           <p v-else>这个省份的内容正在整理中。</p>
         </div>
       </section>

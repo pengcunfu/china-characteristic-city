@@ -11,8 +11,17 @@ const pages = {
   detailBeijing: `${BASE}/#/province/%E5%8C%97%E4%BA%AC`,
   detailHubei: `${BASE}/#/province/%E6%B9%96%E5%8C%97`,
   detailGansu: `${BASE}/#/province/%E7%94%98%E8%82%83`,
+  detailGuangdong: `${BASE}/#/province/%E5%B9%BF%E4%B8%9C`,
+  detailTaiwan: `${BASE}/#/province/%E5%8F%B0%E6%B9%BE`,
+  detailHongkong: `${BASE}/#/province/%E9%A6%99%E6%B8%AF`,
   notFound: `${BASE}/#/no-such-page`
 }
+
+const preview = spawn(
+  process.execPath,
+  ['node_modules/vite/bin/vite.js', 'preview', '--port', '4173', '--strictPort'],
+  { stdio: 'ignore' }
+)
 
 const chrome = spawn(
   CHROME,
@@ -28,6 +37,19 @@ const chrome = spawn(
 )
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+async function waitPreviewReady() {
+  for (let i = 0; i < 40; i++) {
+    try {
+      const res = await fetch(BASE)
+      if (res.ok) return
+    } catch {
+      /* not ready yet */
+    }
+    await sleep(500)
+  }
+  throw new Error('预览服务器启动超时')
+}
 
 async function getPageTarget() {
   for (let i = 0; i < 30; i++) {
@@ -45,6 +67,7 @@ async function getPageTarget() {
 }
 
 async function main() {
+  await waitPreviewReady()
   const page = await getPageTarget()
   const ws = new WebSocket(page.webSocketDebuggerUrl)
   await new Promise((resolve, reject) => {
@@ -108,10 +131,12 @@ async function main() {
 
   ws.close()
   chrome.kill()
+  preview.kill()
 }
 
 main().catch((err) => {
   console.error('QA 失败:', err.message)
   chrome.kill()
+  preview.kill()
   process.exit(1)
 })
