@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(npm:*)",
+      "Shell(node --version)",
+      "Shell(node node_modules/vite/bin/vite.js)",
+      "Shell(curl -s -o NUL -w \"%{http_code}\" http://localhost:5179/)",
+      "Shell(curl -s http://localhost:5179/)",
+      "Shell(curl -s -o NUL -w \"main.js: %{http_code}\\n\" http://localhost:5179/src/main.js)",
+      "Shell(agent-browser:*)",
+      "Shell(node \"C:\\Users\\lsy\\AppData\\Local\\Temp\\commandcode\\D--Projects-china-characteristic-city\\b175aeee-d534-4496-bcd0-566014dc67f2\\scratchpad\\shot.mjs\")",
+      "Shell(node \"C:\\Users\\lsy\\AppData\\Local\\Temp\\commandcode\\D--Projects-china-characteristic-city\\b175aeee-d534-4496-bcd0-566014dc67f2\\scratchpad\\probe.mjs\")",
+      "Shell(node C:\\Users\\lsy\\AppData\\Local\\Temp\\commandcode\\D--Projects-china-characteristic-city\\b175aeee-d534-4496-bcd0-566014dc67f2\\scratchpad\\shot.mjs 2 >& 1)",
+      "Shell(node -e let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const i=s.indexOf('=== REPORT ===');const j=s.indexOf('=== LOGS ===');const r=s.slice(i,j);try{const o=JSON.parse(r.replace('=== REPORT ===',''));const pick={env:o.env,homeTop:{splitDivs:o.homeTop&&o.homeTop.heroTitleSpans,tiltCards:o.homeTop&&o.homeTop.tiltCards,lenis:o.homeTop&&o.homeTop.lenis,eyebrow:o.homeTop&&o.homeTop['.hero-eyebrow']},provinces:{tiltCards:o.provinces.tiltCards,lenis:o.provinces.lenis,cards:o.provinces.provinceCards},detail:{tiltCards:o.detail.tiltCards,cards:o.detail.cityCards,seal:o.detail['.hero-seal']},hoverTilt:o.hoverTilt,filter:o.filter,reducedMotion:o.reducedMotion};console.log(JSON.stringify(pick,null,2))}catch(e){console.log(r.slice(-3000))}console.log(s.slice(j))}))",
+      "Shell(node \"C:\\Users\\lsy\\AppData\\Local\\Temp\\commandcode\\D--Projects-china-characteristic-city\\b175aeee-d534-4496-bcd0-566014dc67f2\\scratchpad\\check2.mjs\")",
+      "Shell(node scripts/qa.mjs 2 >& 1)",
+      "Shell(Select-String:*)",
+      "Shell(node scripts/qa.mjs)",
+      "Shell(findstr:*)",
+      "Shell(curl -s -o NUL -w \"dev server: %{http_code}\\n\" http://localhost:5179/)",
+      "Shell(curl -s -o NUL -w \"status: %{http_code}\" http://localhost:5179/)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

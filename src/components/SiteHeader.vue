@@ -1,19 +1,36 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { onScroll } from '../animations/scroll'
 
 const route = useRoute()
 const open = ref(false)
+const scrolled = ref(false)
+let stop = null
+
 watch(
   () => route.fullPath,
   () => {
     open.value = false
   }
 )
+
+function update() {
+  scrolled.value = window.scrollY > 12
+}
+
+onMounted(() => {
+  stop = onScroll(update)
+  update()
+})
+
+onUnmounted(() => {
+  if (stop) stop()
+})
 </script>
 
 <template>
-  <header class="site-header">
+  <header class="site-header" :class="{ 'is-scrolled': scrolled }">
     <div class="container header-inner">
       <RouterLink to="/" class="brand" aria-label="返回首页">
         <span class="brand-seal">城</span>

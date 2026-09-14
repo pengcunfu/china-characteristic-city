@@ -1,23 +1,77 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchBox from '../components/SearchBox.vue'
 import ProvinceCard from '../components/ProvinceCard.vue'
 import { REGIONS } from '../data/regions'
 import { totalProvinces, totalCities, featuredProvinces, cityTicker } from '../data/store'
+import { gsap, prefersReducedMotion } from '../animations/gsap'
+import { splitChars } from '../animations/splitChars'
+import { countUp } from '../animations/reveal'
 
 const router = useRouter()
 const query = ref('')
 const featured = featuredProvinces(12)
 const ticker = cityTicker(48)
 
+const root = ref(null)
+let ctx = null
+let split = null
+
 function onSearch(q) {
   router.push({ path: '/provinces', query: q ? { q } : {} })
 }
+
+onMounted(() => {
+  if (prefersReducedMotion || !root.value) return
+
+  const el = root.value
+  ctx = gsap.context(() => {
+    const q = gsap.utils.selector(el)
+    const title = el.querySelector('.hero-title')
+    if (title) split = splitChars(title)
+
+    const tl = gsap.timeline({ delay: 0.12 })
+    tl.from(q('.hero-eyebrow'), { y: 22, opacity: 0, duration: 0.7 })
+    if (split) {
+      tl.from(
+        split.chars,
+        {
+          yPercent: 72,
+          opacity: 0,
+          rotateX: -88,
+          transformPerspective: 620,
+          transformOrigin: '50% 100%',
+          stagger: 0.045,
+          duration: 0.85
+        },
+        '-=0.4'
+      )
+    }
+    tl.from(q('.hero-sub'), { y: 20, opacity: 0, duration: 0.7 }, '-=0.6')
+    tl.from(q('.hero-search'), { y: 24, opacity: 0, scale: 0.96, duration: 0.7 }, '-=0.52')
+    tl.from(q('.hero-stat'), { y: 22, opacity: 0, stagger: 0.09, duration: 0.6 }, '-=0.45')
+    tl.from(q('.hero-cue'), { opacity: 0, duration: 0.6 }, '-=0.2')
+
+    gsap.to(q('.hero-mountains'), {
+      yPercent: 16,
+      ease: 'none',
+      scrollTrigger: { trigger: q('.hero'), start: 'top top', end: 'bottom top', scrub: true }
+    })
+
+    q('.hero-stat-num').forEach((node) => countUp(node, Number(node.dataset.count)))
+  }, el)
+})
+
+onUnmounted(() => {
+  ctx?.revert()
+  split?.revert()
+  split = null
+})
 </script>
 
 <template>
-  <div>
+  <div ref="root">
     <section class="hero">
       <div class="container hero-inner">
         <p class="hero-eyebrow">一方水土 · 一方风情</p>
@@ -33,18 +87,20 @@ function onSearch(q) {
 
         <div class="hero-stats">
           <div class="hero-stat">
-            <strong>{{ totalProvinces }}</strong>
+            <strong class="hero-stat-num" :data-count="totalProvinces">{{ totalProvinces }}</strong>
             <span>个省份</span>
           </div>
           <div class="hero-stat">
-            <strong>{{ totalCities }}</strong>
+            <strong class="hero-stat-num" :data-count="totalCities">{{ totalCities }}</strong>
             <span>座城市</span>
           </div>
           <div class="hero-stat">
-            <strong>{{ REGIONS.length }}</strong>
+            <strong class="hero-stat-num" :data-count="REGIONS.length">{{ REGIONS.length }}</strong>
             <span>大地理分区</span>
           </div>
         </div>
+
+        <div class="hero-cue" aria-hidden="true"><span></span></div>
       </div>
 
       <svg class="hero-mountains" viewBox="0 0 1440 180" preserveAspectRatio="none" aria-hidden="true">
@@ -69,7 +125,12 @@ function onSearch(q) {
           <RouterLink to="/provinces" class="section-more">全部省份 →</RouterLink>
         </div>
         <div class="grid">
-          <ProvinceCard v-for="p in featured" :key="p.id" :province="p" />
+          <ProvinceCard
+            v-for="(p, i) in featured"
+            :key="p.id"
+            v-reveal="{ yPercent: 12, scale: 0.97, delay: (i % 6) * 0.06 }"
+            :province="p"
+          />
         </div>
       </div>
     </section>
@@ -84,8 +145,10 @@ function onSearch(q) {
         </div>
         <div class="region-grid">
           <RouterLink
-            v-for="r in REGIONS"
+            v-for="(r, i) in REGIONS"
             :key="r.name"
+            v-reveal="{ yPercent: 14, scale: 0.96, delay: i * 0.06 }"
+            v-tilt
             :to="{ path: '/provinces', query: { region: r.name } }"
             class="region-card"
           >
@@ -106,15 +169,28 @@ function onSearch(q) {
           </div>
         </div>
         <div class="city-ticker">
-          <RouterLink
-            v-for="(c, i) in ticker"
-            :key="`${c.provinceId}-${i}`"
-            :to="`/province/${c.provinceId}`"
-            class="city-chip"
-          >
-            {{ c.city }}
-            <span class="p">{{ c.province }}</span>
-          </RouterLink>
+          <div class="city-ticker-track">
+            <RouterLink
+              v-for="(c, i) in ticker"
+              :key="`${c.provinceId}-${i}`"
+              :to="`/province/${c.provinceId}`"
+              class="city-chip"
+            >
+              {{ c.city }}
+              <span class="p">{{ c.province }}</span>
+            </RouterLink>
+            <RouterLink
+              v-for="(c, i) in ticker"
+              :key="`dup-${c.provinceId}-${i}`"
+              :to="`/province/${c.provinceId}`"
+              class="city-chip"
+              aria-hidden="true"
+              tabindex="-1"
+            >
+              {{ c.city }}
+              <span class="p">{{ c.province }}</span>
+            </RouterLink>
+          </div>
         </div>
       </div>
     </section>

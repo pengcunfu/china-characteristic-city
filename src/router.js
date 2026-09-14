@@ -7,7 +7,7 @@ import NotFoundView from './views/NotFoundView.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   scrollBehavior() {
-    return { top: 0 }
+    return false
   },
   routes: [
     { path: '/', name: 'home', component: HomeView },

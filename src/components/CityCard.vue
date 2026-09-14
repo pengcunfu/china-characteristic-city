@@ -21,7 +21,7 @@ const rows = computed(() => ROWS.filter((r) => props.city.details[r.key]))
 </script>
 
 <template>
-  <article class="city-card">
+  <article v-tilt class="city-card">
     <header class="city-card-head">
       <h3>{{ city.name }}</h3>
       <span class="city-badge">城市</span>
