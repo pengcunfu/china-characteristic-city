@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b110d" />
+      <stop offset="0.52" stop-color="#42130f" />
+      <stop offset="1" stop-color="#7c1f18" />
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6da" stop-opacity="0.95" />
+      <stop offset="0.42" stop-color="#eed9a8" stop-opacity="0.5" />
+      <stop offset="1" stop-color="#eed9a8" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8cf9e" stop-opacity="0" />
+      <stop offset="0.5" stop-color="#e8cf9e" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#e8cf9e" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="ridgeFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8cf9e" stop-opacity="0.12" />
+      <stop offset="1" stop-color="#e8cf9e" stop-opacity="0.02" />
+    </linearGradient>
+    <linearGradient id="ridgeMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c0e0a" stop-opacity="0.55" />
+      <stop offset="1" stop-color="#1c0e0a" stop-opacity="0.1" />
+    </linearGradient>
+    <linearGradient id="ridgeNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#120a07" stop-opacity="0.8" />
+      <stop offset="1" stop-color="#120a07" stop-opacity="0.4" />
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="946" cy="138" r="168" fill="url(#sun)" opacity="0.85" />
+  <circle cx="946" cy="138" r="62" fill="#f7ecd0" opacity="0.82" />
+
+  <path
+    d="M0 452 C 90 420 150 380 232 398 C 312 416 372 356 460 342 C 544 330 604 396 690 408 C 776 420 846 366 934 350 C 1018 334 1090 396 1200 410 L1200 630 L0 630 Z"
+    fill="url(#ridgeFar)"
+  />
+  <path
+    d="M0 512 C 104 472 186 446 282 470 C 374 492 448 442 548 434 C 650 426 716 486 816 500 C 912 514 986 464 1084 452 C 1136 446 1176 466 1200 480 L1200 630 L0 630 Z"
+    fill="url(#ridgeMid)"
+  />
+  <path
+    d="M0 574 C 112 550 202 534 308 548 C 414 562 506 590 618 582 C 734 574 830 536 944 546 C 1054 556 1136 580 1200 576 L1200 630 L0 630 Z"
+    fill="url(#ridgeNear)"
+  />
+
+  <rect x="18" y="18" width="1164" height="594" fill="none" stroke="#e8cf9e" stroke-opacity="0.22" stroke-width="1" />
+
+  <text
+    x="96"
+    y="196"
+    fill="#e8cf9e"
+    font-family="Noto Serif SC, Source Han Serif SC, Songti SC, SimSun, serif"
+    font-size="22"
+    letter-spacing="8"
+    opacity="0.85"
+  >一方水土 · 一方风情</text>
+
+  <text
+    x="92"
+    y="320"
+    fill="#f7f0e2"
+    font-family="Noto Serif SC, Source Han Serif SC, Songti SC, SimSun, serif"
+    font-size="94"
+    font-weight="700"
+    letter-spacing="12"
+  >中国特色城市</text>
+
+  <g transform="translate(812 218)">
+    <rect width="92" height="92" rx="14" fill="#b0342c" />
+    <rect x="6" y="6" width="80" height="80" rx="10" fill="none" stroke="#f7f0e2" stroke-opacity="0.28" stroke-width="2" />
+    <text
+      x="46"
+      y="66"
+      text-anchor="middle"
+      fill="#f7f0e2"
+      font-family="Noto Serif SC, Songti SC, SimSun, serif"
+      font-size="52"
+      font-weight="700"
+    >城</text>
+  </g>
+
+  <rect x="96" y="352" width="320" height="2" fill="url(#gold)" />
+
+  <text
+    x="96"
+    y="410"
+    fill="#f2e4c4"
+    font-family="Noto Serif SC, Source Han Serif SC, Songti SC, SimSun, serif"
+    font-size="28"
+    letter-spacing="4"
+  >城市印象志 · 34 个省级行政区 · 455 座城市</text>
+
+  <text
+    x="96"
+    y="462"
+    fill="#f7f0e2"
+    fill-opacity="0.62"
+    font-family="PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif"
+    font-size="20"
+    letter-spacing="2"
+  >特色 · 景点 · 饮食 · 特产 · 文化 · 节庆 · 历史 · 交通 · 当地习惯</text>
+
+  <text
+    x="1104"
+    y="590"
+    text-anchor="end"
+    fill="#e8cf9e"
+    fill-opacity="0.7"
+    font-family="PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif"
+    font-size="18"
+    letter-spacing="3"
+  >city-all.xin</text>
+
+  <rect width="1200" height="630" filter="url(#grain)" opacity="0.05" />
+</svg>

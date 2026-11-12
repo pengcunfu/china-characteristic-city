@@ -4,17 +4,19 @@ const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 const DEBUG_PORT = 9222
 const BASE = 'http://localhost:4173'
 
+const provincePage = (name) => `${BASE}/province/${encodeURIComponent(name)}`
+
 const pages = {
-  home: `${BASE}/#/`,
-  provinces: `${BASE}/#/provinces`,
-  detailJiangsu: `${BASE}/#/province/%E6%B1%9F%E8%8B%8F`,
-  detailBeijing: `${BASE}/#/province/%E5%8C%97%E4%BA%AC`,
-  detailHubei: `${BASE}/#/province/%E6%B9%96%E5%8C%97`,
-  detailGansu: `${BASE}/#/province/%E7%94%98%E8%82%83`,
-  detailGuangdong: `${BASE}/#/province/%E5%B9%BF%E4%B8%9C`,
-  detailTaiwan: `${BASE}/#/province/%E5%8F%B0%E6%B9%BE`,
-  detailHongkong: `${BASE}/#/province/%E9%A6%99%E6%B8%AF`,
-  notFound: `${BASE}/#/no-such-page`
+  home: `${BASE}/`,
+  provinces: `${BASE}/provinces`,
+  detailJiangsu: provincePage('江苏'),
+  detailBeijing: provincePage('北京'),
+  detailHubei: provincePage('湖北'),
+  detailGansu: provincePage('甘肃'),
+  detailGuangdong: provincePage('广东'),
+  detailTaiwan: provincePage('台湾'),
+  detailHongkong: provincePage('香港'),
+  notFound: `${BASE}/no-such-page`
 }
 
 const preview = spawn(

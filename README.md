@@ -5,9 +5,10 @@
 ## 技术栈
 
 - Vue 3（组合式 API）
-- Vue Router（hash 路由，静态部署零配置）
+- Vue Router（history 路由，构建时预渲染为静态页面）
 - Vite 6
 - GSAP（ScrollTrigger / Flip）与 Lenis 驱动的滚动动效
+- 构建时 SSR 预渲染（`vue/server-renderer`），输出每页独立 HTML
 - 无 UI 框架，手写中式风格样式
 
 ## 内容来源
@@ -71,17 +72,30 @@ npm run dev
 ## 构建与预览
 
 ```bash
-npm run build
-npm run preview
+npm run build     # 客户端构建 + SSR 构建 + 预渲染
+npm run preview   # 本地预览 dist/
 ```
 
-构建产物输出到 `dist/`，站点使用相对路径（`base: './'`）与 hash 路由，可以直接把 `dist/` 部署到任意静态托管（GitHub Pages、Nginx、对象存储等），无需额外配置。
+`npm run build` 依次执行三步：
+
+1. `vite build` 生成客户端资源与 `dist/index.html`
+2. `vite build --ssr src/entry-server.js` 生成预渲染用的 SSR 包（`.ssr-dist/`）
+3. `node scripts/prerender.mjs` 为首页、省份列表和 34 个省份详情页各生成一份带正文与独立 meta 的静态 HTML，并输出 `404.html`、`sitemap.xml`、`llms.txt`、`llms-full.txt`
+
+站点使用根路径 `base: '/'` 与 history 路由，需要静态托管支持目录索引与 `404.html`。Cloudflare Pages 已实测通过；旧的 `/#/province/...` hash 链接会在浏览器端自动跳转到干净路径。
 
 ## 项目结构
 
 ```text
 docs/                  省份 JSON 内容源（34 个省级行政区）
+public/                robots.txt、_headers、favicon、og-cover 分享图
 src/
+  app.js               创建应用并注册全局指令（客户端与 SSR 共用）
+  routes.js            路由表与 createAppRouter
+  router.js            客户端 history 路由实例
+  main.js              客户端入口（水合、SEO 更新、旧 hash 跳转）
+  entry-server.js      SSR 入口，供预渲染脚本调用
+  lib/seo.js           各页面 title / description / canonical / JSON-LD
   data/                内容解析与搜索（parseDocs、store）
   animations/          GSAP 配置、逐字拆分、Lenis 平滑滚动
   directives/          reveal 进场、tilt 3D 倾斜、parallax 指针视差
@@ -90,6 +104,7 @@ src/
   views/               首页、省份列表、省份详情、404
   styles/main.css      全局样式
   styles/enhance.css   水墨视觉增强：场景图层、图景卡片、光斑与微交互
+scripts/prerender.mjs  预渲染页面并生成 sitemap / llms 文件
 scripts/qa.mjs         无头浏览器渲染自检脚本
 ```
 
@@ -98,6 +113,24 @@ scripts/qa.mjs         无头浏览器渲染自检脚本
 - 首页「山河图景」与英雄区山水均为内联 SVG 绘制，不依赖外部图片，离线可用、无版权风险；如需换成实拍照片，可沿用 `docs/` 中的 `images` 字段扩展。
 - 滚动入场、3D 倾斜、指针视差、笔触分隔、路由幕布等动效由 GSAP + ScrollTrigger 驱动；触屏与 `prefers-reduced-motion` 环境会自动降级为静态呈现。
 - 省份详情页按地理分区切换朱红、青绿、暮蓝三套色调，与首页水墨场景共用 `InkScene` 组件。
+
+## SEO 与 AI 搜索
+
+站点按「搜索引擎 + AI 搜索 + 生成式引擎优化（GEO）」三方面配置：
+
+- **静态可读**：每个路由在构建时预渲染为独立 HTML，正文、标题与链接不依赖 JavaScript 即可被抓取；Googlebot、Bingbot、Baiduspider 以及 GPTBot、OAI-SearchBot、ClaudeBot、PerplexityBot 等均可直接读取。
+- **独立元信息**：每个页面有自己的 `title`、`description`、`keywords`、canonical、Open Graph、Twitter Card；`src/lib/seo.js` 同时负责构建期注入与客户端路由切换后的更新。
+- **结构化数据**：首页使用 `WebSite + WebPage`，省份列表使用 `CollectionPage + ItemList`，省份详情使用 `WebPage + BreadcrumbList + AdministrativeArea + ItemList`。
+- **站点级文件**：`/robots.txt`、`/sitemap.xml`、`/llms.txt`、`/llms-full.txt`。其中 `llms-full.txt` 按省份与城市整理全部字段，方便 AI 检索与引用。
+- **分享封面**：`/og-cover.jpg`（1200×630），源文件为 `public/og-cover.svg`。
+- **404 处理**：未知路径返回 `404.html` 并标记 `noindex,nofollow`，不会被当成首页软 404。
+
+上线后建议手动提交一次：
+
+1. Google Search Console 添加 `city-all.xin`，提交 `https://city-all.xin/sitemap.xml`
+2. Bing Webmaster Tools 同样提交 sitemap
+3. 百度搜索资源平台添加站点并提交 sitemap（如需百度收录）
+4. 若更换主域名，修改 `src/lib/seo.js` 中的 `SITE_URL` 后重新构建
 
 ## 补充内容
 

@@ -14,7 +14,7 @@ export const isTouch = hasWindow
   ? window.matchMedia('(hover: none) and (pointer: coarse)').matches
   : false
 
-export const motionEnabled = !prefersReducedMotion
+export const motionEnabled = hasWindow && !prefersReducedMotion
 
 gsap.defaults({ ease: 'power3.out', duration: 0.8 })
 
