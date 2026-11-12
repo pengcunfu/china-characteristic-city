@@ -7,6 +7,7 @@
 - Vue 3（组合式 API）
 - Vue Router（hash 路由，静态部署零配置）
 - Vite 6
+- GSAP（ScrollTrigger / Flip）与 Lenis 驱动的滚动动效
 - 无 UI 框架，手写中式风格样式
 
 ## 内容来源
@@ -82,11 +83,21 @@ npm run preview
 docs/                  省份 JSON 内容源（34 个省级行政区）
 src/
   data/                内容解析与搜索（parseDocs、store）
+  animations/          GSAP 配置、逐字拆分、Lenis 平滑滚动
+  directives/          reveal 进场、tilt 3D 倾斜、parallax 指针视差
   components/          页头、页脚、搜索框、省份卡、城市卡
+                       以及 InkScene 水墨场景、VistaCard 山河图景、BrushDivider 笔触分隔
   views/               首页、省份列表、省份详情、404
   styles/main.css      全局样式
+  styles/enhance.css   水墨视觉增强：场景图层、图景卡片、光斑与微交互
 scripts/qa.mjs         无头浏览器渲染自检脚本
 ```
+
+## 视觉与动效
+
+- 首页「山河图景」与英雄区山水均为内联 SVG 绘制，不依赖外部图片，离线可用、无版权风险；如需换成实拍照片，可沿用 `docs/` 中的 `images` 字段扩展。
+- 滚动入场、3D 倾斜、指针视差、笔触分隔、路由幕布等动效由 GSAP + ScrollTrigger 驱动；触屏与 `prefers-reduced-motion` 环境会自动降级为静态呈现。
+- 省份详情页按地理分区切换朱红、青绿、暮蓝三套色调，与首页水墨场景共用 `InkScene` 组件。
 
 ## 补充内容
 

@@ -16,6 +16,7 @@ function onLeave(el, done) {
     done()
     return
   }
+  const seal = curtain.value.querySelector('.page-curtain-seal')
   const tl = gsap.timeline({ onComplete: done })
   tl.to(el, { opacity: 0, yPercent: -5, filter: 'blur(10px)', duration: 0.4, ease: 'power2.in' })
   tl.fromTo(
@@ -24,6 +25,14 @@ function onLeave(el, done) {
     { yPercent: 0, duration: 0.55, ease: 'power3.inOut' },
     0.1
   )
+  if (seal) {
+    tl.fromTo(
+      seal,
+      { scale: 0.82, rotate: -14, opacity: 0 },
+      { scale: 1, rotate: -4, opacity: 1, duration: 0.55, ease: 'power3.out' },
+      0.24
+    )
+  }
 }
 
 function onEnter(el, done) {
@@ -33,6 +42,7 @@ function onEnter(el, done) {
     ScrollTrigger.refresh()
     return
   }
+  const seal = curtain.value.querySelector('.page-curtain-seal')
   gsap.set(el, { opacity: 0, yPercent: 5, filter: 'blur(10px)' })
   gsap
     .timeline({
@@ -48,6 +58,13 @@ function onEnter(el, done) {
       { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' },
       0.12
     )
+  if (seal) {
+    gsap.fromTo(
+      seal,
+      { scale: 1, rotate: -4 },
+      { scale: 1.08, rotate: 6, duration: 0.6, ease: 'power2.in' }
+    )
+  }
 }
 </script>
 

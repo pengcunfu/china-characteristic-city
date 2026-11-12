@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import CityCard from '../components/CityCard.vue'
 import SearchBox from '../components/SearchBox.vue'
+import InkScene from '../components/InkScene.vue'
 import { getProvince, searchCities } from '../data/store'
 import { REGION_EMOJI } from '../data/regions'
 import { gsap, prefersReducedMotion } from '../animations/gsap'
@@ -12,6 +13,18 @@ const route = useRoute()
 const province = computed(() => getProvince(route.params.id))
 const query = ref('')
 const cities = computed(() => (province.value ? searchCities(province.value, query.value) : []))
+
+const TONE_BY_REGION = {
+  华东: 'jade',
+  华南: 'jade',
+  华中: 'ember',
+  华北: 'ember',
+  东北: 'dusk',
+  西南: 'dusk',
+  西北: 'dusk'
+}
+const tone = computed(() => TONE_BY_REGION[province.value?.region] || 'ember')
+const watermark = computed(() => (province.value ? province.value.name.slice(0, 1) : ''))
 
 const root = ref(null)
 let ctx = null
@@ -90,7 +103,13 @@ onUnmounted(() => {
 <template>
   <div ref="root">
     <template v-if="province">
-      <section class="province-hero">
+      <section class="province-hero" :class="`tone-${tone}`">
+        <InkScene class="province-scene" :tone="tone" />
+        <span class="province-hero-watermark" aria-hidden="true">{{ watermark }}</span>
+        <div class="province-side-note" aria-hidden="true">
+          <span>{{ province.region }}</span>
+          <span>城市印象</span>
+        </div>
         <div class="container">
           <nav class="breadcrumb" aria-label="面包屑">
             <RouterLink to="/">首页</RouterLink>

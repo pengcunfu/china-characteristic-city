@@ -8,6 +8,7 @@ defineProps({
 
 <template>
   <RouterLink v-tilt :to="`/province/${province.id}`" class="province-card">
+    <span class="province-watermark" aria-hidden="true">{{ province.name.slice(0, 1) }}</span>
     <div class="province-card-head">
       <span class="province-name">{{ province.name }}</span>
       <span class="region-tag">{{ REGION_EMOJI[province.region] || '📍' }} {{ province.region }}</span>
