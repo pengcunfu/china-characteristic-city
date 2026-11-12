@@ -5,6 +5,7 @@ import { App, installApp } from './app'
 import { createAppRouter } from './routes'
 
 export { provinces } from './data/store'
+export { cityPath, provincePath } from './lib/paths'
 export {
   SITE_URL,
   SITE_NAME,

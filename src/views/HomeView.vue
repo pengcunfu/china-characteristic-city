@@ -11,6 +11,7 @@ import { totalProvinces, totalCities, featuredProvinces, cityTicker } from '../d
 import { gsap, prefersReducedMotion } from '../animations/gsap'
 import { splitChars } from '../animations/splitChars'
 import { countUp } from '../animations/reveal'
+import { cityPath } from '../lib/paths'
 
 const router = useRouter()
 const query = ref('')
@@ -244,7 +245,7 @@ onUnmounted(() => {
             <RouterLink
               v-for="(c, i) in ticker"
               :key="`${c.provinceId}-${i}`"
-              :to="`/province/${c.provinceId}`"
+              :to="cityPath(c.provinceId, c.city)"
               class="city-chip"
             >
               {{ c.city }}
@@ -253,7 +254,7 @@ onUnmounted(() => {
             <RouterLink
               v-for="(c, i) in ticker"
               :key="`dup-${c.provinceId}-${i}`"
-              :to="`/province/${c.provinceId}`"
+              :to="cityPath(c.provinceId, c.city)"
               class="city-chip"
               aria-hidden="true"
               tabindex="-1"

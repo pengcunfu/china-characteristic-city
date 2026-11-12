@@ -1,38 +1,46 @@
 <script setup>
 import { computed } from 'vue'
+import { fieldsOf } from '../data/cityFields'
+import { cityPath } from '../lib/paths'
 
 const props = defineProps({
-  city: { type: Object, required: true }
+  city: { type: Object, required: true },
+  provinceId: { type: String, required: true }
 })
 
-const ROWS = [
-  { key: '特色', label: '特色', icon: '🏙' },
-  { key: '景点', label: '景点', icon: '🗺' },
-  { key: '饮食', label: '饮食', icon: '🍜' },
-  { key: '特产', label: '特产', icon: '🎁' },
-  { key: '文化', label: '文化', icon: '🏮' },
-  { key: '节庆', label: '节庆', icon: '🎊' },
-  { key: '历史', label: '历史', icon: '📜' },
-  { key: '交通', label: '交通', icon: '🚄' },
-  { key: '当地习惯', label: '习惯', icon: '☕' }
-]
+const rows = computed(() => fieldsOf(props.city))
+const highlights = computed(() => rows.value.slice(0, 3))
+const summary = computed(() => props.city.intro || props.city.details?.['特色'] || '')
 
-const rows = computed(() => ROWS.filter((r) => props.city.details[r.key]))
+function snippet(text, max = 42) {
+  const value = String(text || '')
+  return value.length > max ? `${value.slice(0, max)}…` : value
+}
 </script>
 
 <template>
-  <article v-tilt class="city-card">
+  <RouterLink
+    v-tilt
+    :to="cityPath(provinceId, city.name)"
+    class="city-card"
+    :aria-label="`查看${city.name}城市详情`"
+  >
     <header class="city-card-head">
       <h3>{{ city.name }}</h3>
       <span class="city-badge">城市</span>
     </header>
-    <p v-if="city.intro" class="city-intro">{{ city.intro }}</p>
-    <dl v-if="rows.length" class="city-details">
-      <div v-for="row in rows" :key="row.key" class="detail-row">
-        <dt><span class="detail-icon">{{ row.icon }}</span>{{ row.label }}</dt>
-        <dd>{{ city.details[row.key] }}</dd>
+    <p v-if="summary" class="city-intro">{{ snippet(summary, 62) }}</p>
+    <div v-if="highlights.length" class="city-highlights">
+      <div v-for="row in highlights" :key="row.key" class="city-highlight">
+        <span class="detail-icon">{{ row.icon }}</span>
+        <span class="city-highlight-label">{{ row.label }}</span>
+        <span class="city-highlight-text">{{ snippet(city.details[row.key]) }}</span>
       </div>
-    </dl>
+    </div>
     <p v-else class="city-empty">内容整理中，敬请期待…</p>
-  </article>
+    <footer class="city-card-foot">
+      <span>{{ rows.length }} 项城市印象</span>
+      <span class="more">阅读详情 →</span>
+    </footer>
+  </RouterLink>
 </template>

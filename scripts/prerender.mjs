@@ -19,6 +19,8 @@ if (!fs.existsSync(ssrEntry)) {
 const {
   render,
   provinces,
+  cityPath,
+  provincePath,
   getPageSeo,
   SITE_URL,
   SITE_NAME,
@@ -30,13 +32,21 @@ const {
 
 const template = fs.readFileSync(templatePath, 'utf8')
 const provinceRoutes = provinces.map((p) => ({
-  path: `/province/${encodeURIComponent(p.id)}`,
+  path: provincePath(p.id),
   province: p
 }))
+const cityRoutes = provinces.flatMap((p) =>
+  p.cities.map((c) => ({
+    path: cityPath(p.id, c.name),
+    province: p,
+    city: c
+  }))
+)
 const routes = [
   { path: '/' },
   { path: '/provinces' },
-  ...provinceRoutes
+  ...provinceRoutes,
+  ...cityRoutes
 ]
 
 function escapeHtml(value) {
@@ -120,7 +130,9 @@ function write404() {
 function buildSitemap() {
   const urls = routes
     .map(({ path: route }) => {
-      const priority = route === '/' ? '1.0' : route === '/provinces' ? '0.9' : '0.7'
+      const depth = route.split('/').filter(Boolean).length
+      const priority =
+        route === '/' ? '1.0' : route === '/provinces' ? '0.9' : depth >= 3 ? '0.6' : '0.7'
       const changefreq = route === '/' ? 'weekly' : 'monthly'
       return [
         '  <url>',
@@ -148,12 +160,15 @@ function buildLlms() {
     '- 内容语言: 简体中文（zh-CN）',
     `- 覆盖范围: ${provinces.length} 个省级行政区，${provinces.reduce((n, p) => n + p.cities.length, 0)} 座城市`,
     `- 内容维度: 特色、景点、饮食、特产、文化、节庆、历史、交通、当地习惯`,
+    `- 城市页面: 每座城市独立成页，路径格式为 /city/{省份}/{城市}`,
     `- 最近更新: ${buildDate}`,
     '',
     '## 主要页面',
     `- [首页](${SITE_URL}/)`,
     `- [省份浏览](${SITE_URL}/provinces)`,
     `- [全量内容纯文本](${SITE_URL}/llms-full.txt)`,
+    `- [城市数据 JSON](${SITE_URL}/api/cities.json)`,
+    `- [省份数据 JSON](${SITE_URL}/api/provinces.json)`,
     `- [站点地图](${SITE_URL}/sitemap.xml)`,
     '',
     '## 省份索引',
@@ -198,6 +213,7 @@ function buildLlms() {
       full.push('', `### 城市（${p.cities.length}）`)
       for (const c of p.cities) {
         full.push('', `#### ${c.name}`)
+        full.push(`- 页面: ${SITE_URL}${cityPath(p.id, c.name)}`)
         if (c.intro) full.push(`- 简介: ${c.intro}`)
         for (const [key, value] of Object.entries(c.details || {})) {
           full.push(`- ${key}: ${value}`)
@@ -207,6 +223,49 @@ function buildLlms() {
     full.push('')
   }
   fs.writeFileSync(path.join(distDir, 'llms-full.txt'), full.join('\n'), 'utf8')
+}
+
+
+function buildApi() {
+  const apiDir = path.join(distDir, 'api')
+  fs.mkdirSync(apiDir, { recursive: true })
+
+  const provinceData = {
+    site: SITE_NAME,
+    generated: buildDate,
+    count: provinces.length,
+    provinces: provinces.map((p) => ({
+      id: p.id,
+      name: p.name,
+      region: p.region,
+      url: `${SITE_URL}${provincePath(p.id)}`,
+      intro: p.intro,
+      overview: p.overview,
+      districts: p.districts,
+      cityCount: p.cities.length
+    }))
+  }
+  fs.writeFileSync(path.join(apiDir, 'provinces.json'), JSON.stringify(provinceData), 'utf8')
+
+  const cities = provinces.flatMap((p) =>
+    p.cities.map((c) => ({
+      name: c.name,
+      provinceId: p.id,
+      province: p.name,
+      region: p.region,
+      url: `${SITE_URL}${cityPath(p.id, c.name)}`,
+      intro: c.intro,
+      details: c.details
+    }))
+  )
+  const cityData = {
+    site: SITE_NAME,
+    generated: buildDate,
+    count: cities.length,
+    cities
+  }
+  fs.writeFileSync(path.join(apiDir, 'cities.json'), JSON.stringify(cityData), 'utf8')
+  return cities.length
 }
 
 console.log(`预渲染 ${routes.length} 个页面...`)
@@ -219,5 +278,7 @@ console.log('')
 await write404()
 const count = buildSitemap()
 buildLlms()
+const cityCount = buildApi()
 
-console.log(`完成: ${count} 个页面写入 dist/，并生成 404.html、sitemap.xml、llms.txt、llms-full.txt`)
+console.log(`完成: ${count} 个页面写入 dist/，${cityCount} 座城市写入 api/cities.json`)
+console.log('已生成 404.html、sitemap.xml、llms.txt、llms-full.txt、api/provinces.json、api/cities.json')

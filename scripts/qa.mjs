@@ -10,6 +10,7 @@ const pages = {
   home: `${BASE}/`,
   provinces: `${BASE}/provinces`,
   detailJiangsu: provincePage('江苏'),
+  detailChangchun: `${BASE}/city/${encodeURIComponent('吉林')}/${encodeURIComponent('长春')}`,
   detailBeijing: provincePage('北京'),
   detailHubei: provincePage('湖北'),
   detailGansu: provincePage('甘肃'),

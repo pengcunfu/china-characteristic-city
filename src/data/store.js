@@ -34,6 +34,11 @@ export function getProvince(id) {
   return provinces.find((p) => p.id === id)
 }
 
+export function getCity(provinceId, cityName) {
+  const province = getProvince(provinceId)
+  return province ? province.cities.find((city) => city.name === cityName) : undefined
+}
+
 const FEATURED_PROVINCES = [
   '北京',
   '上海',

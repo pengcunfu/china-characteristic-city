@@ -1,4 +1,5 @@
-import { provinces, getProvince } from '../data/store'
+import { provinces, getCity, getProvince } from '../data/store'
+import { cityPath, provincePath } from './paths'
 
 export const SITE_URL = 'https://city-all.xin'
 export const SITE_NAME = '中国特色城市 · 城市印象志'
@@ -19,10 +20,6 @@ function cleanPath(path) {
   const raw = String(path || '/')
   const withoutQuery = raw.split('?')[0].split('#')[0]
   return withoutQuery.startsWith('/') ? withoutQuery : `/${withoutQuery}`
-}
-
-function provincePath(id) {
-  return `/province/${encodeURIComponent(id)}`
 }
 
 function homeSeo(date) {
@@ -195,7 +192,88 @@ function provinceSeo(province, date) {
           itemListElement: province.cities.map((c, i) => ({
             '@type': 'ListItem',
             position: i + 1,
-            name: c.name
+            name: c.name,
+            url: `${SITE_URL}${cityPath(province.id, c.name)}`
+          }))
+        }
+      ]
+    }
+  }
+}
+
+
+function citySeo(province, city, date) {
+  const url = `${SITE_URL}${cityPath(province.id, city.name)}`
+  const provinceUrl = `${SITE_URL}${provincePath(province.id)}`
+  const detailEntries = Object.entries(city.details || {})
+  const snippets = detailEntries
+    .slice(0, 2)
+    .map(([key, value]) => `${key}：${String(value).replace(/[。；;]+$/, '')}`)
+    .join('；')
+  const fallback = `${city.name}位于${province.name}，整理其特色、景点、饮食、特产、文化、历史与交通信息。`
+  const description = `${city.name}（${province.name}）城市印象：${city.intro || snippets || fallback}`.slice(0, 158)
+  const title = `${city.name}城市印象：特色、美食、景点、文化与当地习惯（${province.name}） | ${SITE_NAME}`
+  const keywords = [
+    city.name,
+    `${city.name}特色`,
+    `${city.name}美食`,
+    `${city.name}景点`,
+    `${city.name}特产`,
+    `${city.name}文化`,
+    `${city.name}历史`,
+    `${city.name}旅游`,
+    province.name,
+    province.region
+  ].join(',')
+
+  return {
+    path: cityPath(province.id, city.name),
+    title,
+    description,
+    keywords,
+    robots: 'index,follow,max-image-preview:large,max-snippet:-1',
+    canonical: url,
+    ogType: 'article',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebPage',
+          '@id': `${url}#webpage`,
+          url,
+          name: title,
+          description,
+          inLanguage: 'zh-CN',
+          dateModified: date,
+          isPartOf: { '@id': `${SITE_URL}/#website` },
+          breadcrumb: { '@id': `${url}#breadcrumb` },
+          about: { '@id': `${url}#city` },
+          mainEntity: { '@id': `${url}#city` }
+        },
+        {
+          '@type': 'BreadcrumbList',
+          '@id': `${url}#breadcrumb`,
+          itemListElement: [
+            { position: 1, name: '首页', item: `${SITE_URL}/` },
+            { position: 2, name: '省份浏览', item: `${SITE_URL}/provinces` },
+            { position: 3, name: province.name, item: provinceUrl },
+            { position: 4, name: city.name, item: url }
+          ].map((item) => ({ '@type': 'ListItem', ...item }))
+        },
+        {
+          '@type': 'City',
+          '@id': `${url}#city`,
+          name: city.name,
+          description: city.intro || snippets || fallback,
+          containedInPlace: {
+            '@type': 'AdministrativeArea',
+            name: province.name,
+            url: provinceUrl
+          },
+          additionalProperty: detailEntries.map(([name, value]) => ({
+            '@type': 'PropertyValue',
+            name,
+            value
           }))
         }
       ]
@@ -220,6 +298,23 @@ export function getPageSeo(path, date = today()) {
   const clean = cleanPath(path)
   if (clean === '/' || clean === '') return homeSeo(date)
   if (clean === '/provinces') return provincesSeo(date)
+
+  const cityMatch = clean.match(/^\/city\/([^/]+)\/([^/]+)\/?$/)
+  if (cityMatch) {
+    let provinceId = cityMatch[1]
+    let cityName = cityMatch[2]
+    try {
+      provinceId = decodeURIComponent(provinceId)
+      cityName = decodeURIComponent(cityName)
+    } catch {
+      /* keep raw segments */
+    }
+    const province = getProvince(provinceId)
+    if (province) {
+      const city = getCity(province.id, cityName)
+      if (city) return citySeo(province, city, date)
+    }
+  }
 
   const match = clean.match(/^\/province\/([^/]+)\/?$/)
   if (match) {

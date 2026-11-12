@@ -6,6 +6,7 @@ import SearchBox from '../components/SearchBox.vue'
 import InkScene from '../components/InkScene.vue'
 import { getProvince, searchCities } from '../data/store'
 import { REGION_EMOJI } from '../data/regions'
+import { toneOfRegion } from '../lib/tones'
 import { gsap, prefersReducedMotion } from '../animations/gsap'
 import { splitChars } from '../animations/splitChars'
 
@@ -14,16 +15,7 @@ const province = computed(() => getProvince(route.params.id))
 const query = ref('')
 const cities = computed(() => (province.value ? searchCities(province.value, query.value) : []))
 
-const TONE_BY_REGION = {
-  华东: 'jade',
-  华南: 'jade',
-  华中: 'ember',
-  华北: 'ember',
-  东北: 'dusk',
-  西南: 'dusk',
-  西北: 'dusk'
-}
-const tone = computed(() => TONE_BY_REGION[province.value?.region] || 'ember')
+const tone = computed(() => toneOfRegion(province.value?.region))
 const watermark = computed(() => (province.value ? province.value.name.slice(0, 1) : ''))
 
 const root = ref(null)
@@ -171,7 +163,7 @@ onUnmounted(() => {
               <p class="section-sub">
                 {{
                   cities.length
-                    ? `共 ${cities.length} 座城市`
+                    ? `共 ${cities.length} 座城市，点击卡片查看城市详情`
                     : Object.keys(province.overview).length || province.districts.length
                       ? '该省份以全市概览与主要区域呈现'
                       : '该省份的城市内容整理中，敬请期待'
@@ -193,6 +185,7 @@ onUnmounted(() => {
               :key="c.name"
               v-reveal="{ yPercent: 12, scale: 0.97, delay: (i % 4) * 0.06 }"
               :city="c"
+              :province-id="province.id"
             />
           </div>
 

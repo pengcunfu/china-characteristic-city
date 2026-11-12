@@ -80,7 +80,7 @@ npm run preview   # 本地预览 dist/
 
 1. `vite build` 生成客户端资源与 `dist/index.html`
 2. `vite build --ssr src/entry-server.js` 生成预渲染用的 SSR 包（`.ssr-dist/`）
-3. `node scripts/prerender.mjs` 为首页、省份列表和 34 个省份详情页各生成一份带正文与独立 meta 的静态 HTML，并输出 `404.html`、`sitemap.xml`、`llms.txt`、`llms-full.txt`
+3. `node scripts/prerender.mjs` 为首页、省份列表、34 个省份详情和 455 个城市详情各生成一份带正文与独立 meta 的静态 HTML，并输出 `404.html`、`sitemap.xml`、`llms.txt`、`llms-full.txt` 与 JSON 数据接口
 
 站点使用根路径 `base: '/'` 与 history 路由，需要静态托管支持目录索引与 `404.html`。Cloudflare Pages 已实测通过；旧的 `/#/province/...` hash 链接会在浏览器端自动跳转到干净路径。
 
@@ -101,10 +101,13 @@ src/
   directives/          reveal 进场、tilt 3D 倾斜、parallax 指针视差
   components/          页头、页脚、搜索框、省份卡、城市卡
                        以及 InkScene 水墨场景、VistaCard 山河图景、BrushDivider 笔触分隔
-  views/               首页、省份列表、省份详情、404
+  data/cityFields.js   城市九维字段的图标与顺序
+  lib/paths.js         省份与城市 URL 生成
+  lib/tones.js         按地理分区分配水墨色调
+  views/               首页、省份列表、省份详情、城市详情、404
   styles/main.css      全局样式
   styles/enhance.css   水墨视觉增强：场景图层、图景卡片、光斑与微交互
-scripts/prerender.mjs  预渲染页面并生成 sitemap / llms 文件
+scripts/prerender.mjs  预渲染 491 个页面并生成 sitemap、llms 与 JSON 数据
 scripts/qa.mjs         无头浏览器渲染自检脚本
 ```
 
@@ -118,7 +121,7 @@ scripts/qa.mjs         无头浏览器渲染自检脚本
 
 站点按「搜索引擎 + AI 搜索 + 生成式引擎优化（GEO）」三方面配置：
 
-- **静态可读**：每个路由在构建时预渲染为独立 HTML，正文、标题与链接不依赖 JavaScript 即可被抓取；Googlebot、Bingbot、Baiduspider 以及 GPTBot、OAI-SearchBot、ClaudeBot、PerplexityBot 等均可直接读取。
+- **静态可读**：每个路由在构建时预渲染为独立 HTML，正文、标题与链接不依赖 JavaScript 即可被抓取；每座城市都有独立页面，路径格式为 `/city/{省份}/{城市}`。Googlebot、Bingbot、Baiduspider 以及 GPTBot、OAI-SearchBot、ClaudeBot、PerplexityBot 等均可直接读取。
 - **独立元信息**：每个页面有自己的 `title`、`description`、`keywords`、canonical、Open Graph、Twitter Card；`src/lib/seo.js` 同时负责构建期注入与客户端路由切换后的更新。
 - **结构化数据**：首页使用 `WebSite + WebPage`，省份列表使用 `CollectionPage + ItemList`，省份详情使用 `WebPage + BreadcrumbList + AdministrativeArea + ItemList`。
 - **站点级文件**：`/robots.txt`、`/sitemap.xml`、`/llms.txt`、`/llms-full.txt`。其中 `llms-full.txt` 按省份与城市整理全部字段，方便 AI 检索与引用。
